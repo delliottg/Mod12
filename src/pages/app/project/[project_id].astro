@@ -1,0 +1,23 @@
+---
+import LayoutApp from '@layouts/LayoutApp.astro'
+import { getProject, getTeam } from '@data/pocketbase'
+const { project_id = '' } = Astro.params
+import SingleProject from '@components/app/projects/SingleProject.astro'
+
+let project
+try {
+  project = await getProject(project_id)
+  if (project.team) {
+    const team = await getTeam(project.team)
+    if (team.status === 'freezed') {
+      return Astro.redirect(`/app/team/${team.id}`)
+    }
+  }
+} catch (e) {
+  return Astro.redirect('/app/dashboard')
+}
+---
+
+<LayoutApp title={project.name}>
+  <SingleProject project={project} />
+</LayoutApp>
